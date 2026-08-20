@@ -11,8 +11,8 @@ AI_REFINED_PATH = "outputs/refined_strength_10.png"
 WARPED_BASE_PATH = "outputs/texture_warped_best.png"
 MASK_PATH = "inputs/garment_mask_clean.png"
 
-SHADING_MAP_PATH = "outputs/diffusion_relative_shading_map.png"
-OUTPUT_PATH = "outputs/pattern_preserved_relative_shading.png"
+SHADING_MAP_PATH = "outputs/diffusion_relative_shading_map_normalized.png"
+OUTPUT_PATH = "outputs/pattern_preserved_relative_shading_normalized.png"
 
 
 # =========================================================
@@ -57,8 +57,43 @@ warp_blurred = cv2.GaussianBlur(warp_gray, BLUR_SIZE, 0)
 # =========================================================
 relative_shading = ai_blurred / (warp_blurred + 1e-6)
 
-# 限制范围，避免极端值
-relative_shading = np.clip(relative_shading, 0.85, 1.15)
+
+# =========================================================
+# 3.1 消除整体曝光变化
+#
+# 目的：
+# AI 只能告诉我们
+# "哪里应该相对亮一点 / 暗一点"
+#
+# 不允许 AI 把整件衣服一起变暗或变亮。
+#
+# 衣服区域的中位数重新设为 1.0
+# =========================================================
+
+median_shading = np.median(
+    relative_shading[mask_bool]
+)
+
+print(
+    "Median relative shading:",
+    median_shading
+)
+
+relative_shading = (
+    relative_shading /
+    (median_shading + 1e-6)
+)
+
+
+# =========================================================
+# 3.2 再限制变化范围
+# =========================================================
+
+relative_shading = np.clip(
+    relative_shading,
+    0.85,
+    1.15
+)
 
 
 # =========================================================
