@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 模型缓存（>10GB，通过 HF 缓存加载，不入库）
+.cache/
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 日志
+*.log
+
+# 进程文件
+*.pid
